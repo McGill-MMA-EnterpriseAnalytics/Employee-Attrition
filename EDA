@@ -1,0 +1,249 @@
+# -*- coding: utf-8 -*-
+
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.preprocessing import LabelEncoder, StandardScaler
+from sklearn.decomposition import PCA
+from sklearn.cluster import KMeans
+import scipy.cluster.hierarchy as sch
+
+"""Dataset Overview"""
+
+# Load dataset
+df = pd.read_csv("WA_Fn-UseC_-HR-Employee-Attrition.csv")
+
+# Display basic dataset information
+print("Dataset Info:")
+print(df.info())
+
+# Display first few rows
+print("\nFirst 5 Rows:")
+print(df.head())
+
+# Check for missing values
+print("\nMissing Values:")
+print(df.isnull().sum())
+
+# Summary statistics
+print("\nStatistical Summary:")
+print(df.describe())
+
+"""Variable Distribution"""
+
+# Distribution of Age
+plt.figure(figsize=(8, 5))
+sns.histplot(df["Age"], bins=30, kde=True, color="blue")
+plt.title("Age Distribution")
+plt.xlabel("Age")
+plt.show()
+
+# Countplot for Department
+plt.figure(figsize=(8, 5))
+sns.countplot(y="Department", data=df, palette="viridis")
+plt.title("Employee Count by Department")
+plt.show()
+
+# Boxplot for Monthly Income by Job Role
+plt.figure(figsize=(12, 6))
+sns.boxplot(x="JobRole", y="MonthlyIncome", data=df, palette="magma")
+plt.xticks(rotation=90)
+plt.title("Monthly Income by Job Role")
+plt.show()
+
+# Feature Distribution: Salary vs. Experience
+plt.figure(figsize=(10, 5))
+sns.boxplot(x="TotalWorkingYears", y="MonthlyIncome", data=df, palette="Blues")
+plt.title("Salary Distribution Across Experience Levels")
+plt.xlabel("Total Working Years")
+plt.ylabel("Monthly Income")
+plt.show()
+
+"""Correlation"""
+
+# Correlation heatmap
+plt.figure(figsize=(12, 8))
+sns.heatmap(df.corr(numeric_only=True), annot=True, cmap="coolwarm", fmt=".2f")
+plt.title("Correlation Heatmap")
+plt.show()
+
+"""Explore Attrition"""
+
+# Countplot for Attrition
+plt.figure(figsize=(6, 4))
+sns.countplot(x="Attrition", data=df, palette="coolwarm")
+plt.title("Attrition Count")
+plt.show()
+
+# Attrition rate by Department
+plt.figure(figsize=(8, 5))
+sns.barplot(x=df["Department"], y=df["Attrition"].apply(lambda x: 1 if x == "Yes" else 0), palette="coolwarm")
+plt.title("Attrition Rate by Department")
+plt.show()
+
+# Attrition vs. Years at Company
+plt.figure(figsize=(8, 5))
+sns.boxplot(x="Attrition", y="YearsAtCompany", data=df, palette="Set2")
+plt.title("Years at Company vs. Attrition")
+plt.show()
+
+# Pairplot for selected features
+selected_features = ["Age", "MonthlyIncome", "TotalWorkingYears", "YearsAtCompany"]
+sns.pairplot(df[selected_features])
+plt.show()
+
+# Set plot style
+sns.set(style="whitegrid")
+
+# Attrition Breakdown by Gender
+plt.figure(figsize=(8, 5))
+sns.countplot(x="Gender", hue="Attrition", data=df, palette="coolwarm")
+plt.title("Attrition by Gender")
+plt.xlabel("Gender")
+plt.ylabel("Count")
+plt.show()
+
+# Attrition Breakdown by Department
+plt.figure(figsize=(10, 5))
+sns.countplot(y="Department", hue="Attrition", data=df, palette="viridis")
+plt.title("Attrition by Department")
+plt.xlabel("Count")
+plt.ylabel("Department")
+plt.show()
+
+# Feature Importance (Correlation with Attrition)
+# Convert 'Attrition' column to numeric
+df["Attrition"] = df["Attrition"].map({"Yes": 1, "No": 0})
+correlation = df.corr(numeric_only=True)["Attrition"].sort_values(ascending=False)
+
+# Display correlation values
+print("\nFeature Importance (Correlation with Attrition):")
+print(correlation)
+
+# Plot Feature Importance
+plt.figure(figsize=(12, 6))
+sns.barplot(x=correlation.index[1:], y=correlation.values[1:], palette="Reds")
+plt.xticks(rotation=90)
+plt.title("Feature Importance Based on Correlation with Attrition")
+plt.ylabel("Correlation with Attrition")
+plt.show()
+
+# Display correlation values for better interpretation
+correlation_df = correlation.to_frame().reset_index()
+correlation_df.columns = ["Feature", "Correlation with Attrition"]
+print("\nFeature Importance (Correlation with Attrition):")
+print(correlation_df)
+
+"""# EDA for Modelling"""
+
+df = pd.read_csv("WA_Fn-UseC_-HR-Employee-Attrition.csv")
+
+# Convert categorical variables to numeric
+label_encoders = {}
+categorical_cols = df.select_dtypes(include=["object"]).columns
+
+for col in categorical_cols:
+    le = LabelEncoder()
+    df[col] = le.fit_transform(df[col])
+    label_encoders[col] = le  # Store encoders for potential inverse transformation
+
+# Convert Attrition column to numeric explicitly
+df["Attrition"] = df["Attrition"].map({1: 1, 0: 0})  # Ensure 1=Yes, 0=No
+
+# Set plot style
+sns.set(style="whitegrid")
+
+"""EDA for Supervised Learning (Classification) - Attrition Prediction"""
+
+# Correlation Heatmap
+plt.figure(figsize=(12, 8))
+sns.heatmap(df.corr(numeric_only=True), cmap="coolwarm", annot=False)
+plt.title("Correlation Heatmap")
+plt.show()
+
+# Attrition Class Balance Check
+plt.figure(figsize=(6, 4))
+sns.countplot(x="Attrition", data=df, palette="coolwarm")
+plt.title("Attrition Class Balance")
+plt.show()
+
+# Feature Distributions by Attrition
+plt.figure(figsize=(10, 5))
+sns.boxplot(x="Attrition", y="MonthlyIncome", data=df, palette="coolwarm")
+plt.title("Monthly Income Distribution by Attrition")
+plt.show()
+
+plt.figure(figsize=(10, 5))
+sns.boxplot(x="Attrition", y="TotalWorkingYears", data=df, palette="coolwarm")
+plt.title("Total Working Years Distribution by Attrition")
+plt.show()
+
+# Interaction Plots
+sns.pairplot(df, vars=["YearsAtCompany", "JobSatisfaction", "WorkLifeBalance"], hue="Attrition")
+plt.show()
+
+"""EDA for Unsupervised Learning (Clustering) - Employee Segmentation"""
+
+# Scale the features for Clustering
+scaler = StandardScaler()
+df_scaled = scaler.fit_transform(df[["Age", "MonthlyIncome", "YearsAtCompany"]])
+
+# Dimensionality Reduction using PCA
+pca = PCA(n_components=2)
+pca_result = pca.fit_transform(df_scaled)
+
+# Scatterplot of PCA components
+plt.figure(figsize=(8, 5))
+sns.scatterplot(x=pca_result[:, 0], y=pca_result[:, 1], hue=df["Attrition"], palette="coolwarm")
+plt.title("PCA Projection of Employees")
+plt.show()
+
+# Elbow Method for Optimal Clusters
+wcss = []
+for i in range(1, 11):
+    kmeans = KMeans(n_clusters=i, random_state=42, n_init=10)
+    kmeans.fit(df_scaled)
+    wcss.append(kmeans.inertia_)
+
+plt.figure(figsize=(8, 5))
+plt.plot(range(1, 11), wcss, marker="o", linestyle="-", color="blue")
+plt.xlabel("Number of Clusters")
+plt.ylabel("WCSS (Within-Cluster Sum of Squares)")
+plt.title("Elbow Method for Optimal K")
+plt.show()
+
+# Hierarchical Clustering Dendrogram
+plt.figure(figsize=(12, 6))
+dendrogram = sch.dendrogram(sch.linkage(df_scaled, method="ward"))
+plt.title("Hierarchical Clustering Dendrogram")
+plt.xlabel("Employees")
+plt.ylabel("Euclidean Distance")
+plt.show()
+
+"""EDA for Causal Inference (DoWhy/CausalML) - Retention Strategies"""
+
+# Propensity Score Distribution
+plt.figure(figsize=(10, 5))
+sns.histplot(df["PercentSalaryHike"], bins=30, kde=True, color="green")
+plt.title("Distribution of Salary Hike (Potential Treatment Variable)")
+plt.show()
+
+plt.figure(figsize=(10, 5))
+sns.histplot(df["YearsSinceLastPromotion"], bins=30, kde=True, color="red")
+plt.title("Distribution of Time Since Last Promotion")
+plt.show()
+
+# Balance Check: Compare Treated vs. Non-Treated (e.g., Salary Hike)
+plt.figure(figsize=(10, 5))
+sns.boxplot(x=df["Attrition"], y=df["PercentSalaryHike"], palette="coolwarm")
+plt.title("Percent Salary Hike by Attrition Status")
+plt.show()
+
+# Attrition Rate Over Time
+plt.figure(figsize=(10, 5))
+sns.lineplot(x=df["YearsAtCompany"], y=df["Attrition"], ci=None, marker="o", color="blue")
+plt.title("Attrition Rate Over Years at Company")
+plt.xlabel("Years at Company")
+plt.ylabel("Attrition Rate")
+plt.show()
