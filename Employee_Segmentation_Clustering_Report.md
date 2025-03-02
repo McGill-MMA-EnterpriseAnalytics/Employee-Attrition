@@ -37,7 +37,7 @@ To improve computational efficiency and reduce dimensionality while retaining ke
 ## **3. Clustering Techniques Applied**
 
 ### **K-Means Clustering**
-- **Elbow Method** was applied to select the optimal `k` value. It showed that the clustering performed well when k=4 or 5. However, PCA scatter plots exhibited k=3 performed the best in terms of cluster boundary clarity, compactness and business interpretability. 
+- **Elbow Method** was applied to select the optimal `k` value. It showed that the clustering performed well when `k=4 or 5`. However, PCA scatter plots exhibited `k=3` performed the best in terms of cluster boundary clarity, compactness and business interpretability. 
 - The optimal number of clusters `k` was determined as considering both **Elbow Method** and **PCA Scatter Plots with different k values**.
 
 ### **Agglomerative Clustering**
