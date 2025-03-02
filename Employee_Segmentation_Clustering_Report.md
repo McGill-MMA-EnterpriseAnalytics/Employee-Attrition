@@ -12,9 +12,6 @@ The attrition variable is **not included** in the clustering process to ensure t
 
 ## **2. Pre-processing**
 
-### **Principal Component Analysis (PCA)**
-To improve computational efficiency and reduce dimensionality while retaining key information, PCA was applied. By analyzing the **PCA variance explanation plot**, we observed that PCA provided effective dimensionality reduction. We retained **90% of the variance**, resulting in **21 principal components** for further clustering analysis.
-
 ### **Feature Selection (Removing Redundant Variables)**
 
 To improve clustering effectiveness and reduce noise, certain variables were removed:
@@ -33,22 +30,26 @@ Many numeric features were found to have high skewness, which can impact cluster
 
 Categorical variables were converted into numerical format using **one-hot encoding**, dropping the first category to avoid multicollinearity.
 
+### **Principal Component Analysis (PCA)**
+
+To improve computational efficiency and reduce dimensionality while retaining key information, PCA was applied. By analyzing the **PCA variance explanation plot**, we observed that PCA provided effective dimensionality reduction. We retained **90% of the variance**, resulting in **21 principal components** for further clustering analysis.
+
 ## **3. Clustering Techniques Applied**
 
 ### **K-Means Clustering**
-- The optimal number of clusters (`k`) was determined using the **Elbow Method**, which examines the within-cluster sum of squares (WCSS) to identify the point of diminishing returns.
-- After testing different values of `k`, the final choice was based on a balance between interpretability and separation quality.
+- **Elbow Method** was applied to select the optimal `k` value. It showed that the clustering performed well when k=4 or 5. However, PCA scatter plots exhibited k=3 performed the best in terms of cluster boundary clarity, compactness and business interpretability. 
+- The optimal number of clusters `k` was determined as considering both **Elbow Method** and **PCA Scatter Plots with different k values**.
 
 ### **Agglomerative Clustering**
-- Multiple linkage criteria were tested (**ward, complete, average**).
-- The **ward linkage** performed best, as it minimized variance within clusters and produced more compact groupings.
+- Multiple linkage criteria were tested (**ward, complete, single, average**).
+- The **single linkage** and **average linkage** showed the highest silhouette scores while neither of them resulted in balanced clusters due to the chaining effect caused by their computational methods. The **ward linkage** and **complete linkage** should perform well on continuous HR dataset, but their silhouette scores are no better than KMeans clustering.
 
 ### **Other Models Considered and Discarded**
 - **Gaussian Mixture Model (GMM)**: Despite its probabilistic nature, GMM struggled with clearly separating distinct employee segments, leading to overlapping clusters.
 - **Spectral Clustering**: Computationally expensive with large datasets, and it did not significantly improve cluster quality.
 - **DBSCAN**: Failed to produce meaningful clusters due to uneven density in the employee dataset.
 
-The final clustering method selection was based on stability, interpretability, and ability to uncover meaningful employee segments.
+The final clustering method selection was determined as **KMeans Clustering with 3 clusters** based on stability, interpretability, and ability to uncover meaningful employee segments.
 
 ## **4. Cluster Characteristics & Insights**
 
@@ -61,14 +62,14 @@ The final clustering method selection was based on stability, interpretability, 
 ### **Cluster 1: High-Risk Attrition Group**
 - Employees in this cluster had **short tenure**, **low salaries**, and **limited career progression**.
 - This group consisted mostly of **entry-level roles**, with fewer growth opportunities and dissatisfaction in their job roles.
-- They showed **high attrition risk**, with an attrition rate of **20.35%**, which is likely due to early-stage job dissatisfaction or poor role fit.
-- **Strategy:** Address salary concerns, improve job engagement, and provide upskilling opportunities to accelerate their developement or job rotation opportunities to help them find their best fit role to reduce attrition risk.
+- They showed **the highest attrition rate**, with an attrition rate of **20.35%**, which is likely due to early-stage job dissatisfaction or poor role fit.
+- **Strategy:** Address salary concerns, improve job engagement, and provide **upskilling opportunities** to accelerate their developement or **job rotation opportunities** to help them find their best fit role to reduce attrition risk.
 
 ### **Cluster 2: High Performance & High Salary Employees**
 - Employees in this group had **moderate tenure**, **the highest performance ratings**, and **the highest salaries**.
 - They were high achievers, often promoted quickly, and highly valued by the company.
 - Most employees in this cluster were in **high-responsibility roles**, including senior specialists and technical experts.
-- **Strategy:** Focus on leadership development programs, retention bonuses, and providing challenging career opportunities to keep these high performers engaged and committed.
+- **Strategy:** Go beyond financial incentives, focus more on **leadership development programs**, **retention bonuses**, providing challenging career opportunities and **structured career progression plans** to keep these high performers engaged and committed.
 
 ## **5. Conclusion**
 
