@@ -1,0 +1,21 @@
+# -------------------------------------------------------------------------
+# SECTION 1: DEPENDENCIES AND CONFIGURATION
+# -------------------------------------------------------------------------
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.preprocessing import LabelEncoder
+
+# Import DoWhy for causal inference
+import dowhy
+from dowhy import CausalModel
+import warnings
+warnings.filterwarnings('ignore')  # Suppress warnings
+
+# Set plots style for visualization clarity
+sns.set_style('whitegrid')
+plt.rcParams['figure.figsize'] = [12, 8]
+pd.set_option('display.max_columns', None)
+
+print("Starting causal inference analysis using DoWhy...")
